@@ -1,14 +1,43 @@
 {
-  "name": "users-juanfmendozam-documents-nuwit-chilquinta-repositorios-spike-minisitios",
+  "name": "minisitios",
+  "description": "Proyecto base único para 5 minisitios de la empresa. Basado en Astro y arquitectura Headless.",
+  "author": "Nuwit",
   "type": "module",
   "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "keywords": [
+    "astro",
+    "multisite",
+    "aws-deploy",
+    "headless-cms",
+    "white-label"
+  ],
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "dev:1": "astro dev --mode empresa1",
+    "dev:2": "astro dev --mode empresa2",
+    "dev:3": "astro dev --mode empresa3",
+    "dev:4": "astro dev --mode empresa4",
+    "dev:5": "astro dev --mode empresa5",
+    "build:all": "pnpm build:1 && pnpm build:2 && pnpm build:3 && pnpm build:4 && pnpm build:5",
+    "build:1": "astro build --mode empresa1 --outDir dist/empresa1",
+    "build:2": "astro build --mode empresa2 --outDir dist/empresa2",
+    "build:3": "astro build --mode empresa3 --outDir dist/empresa3",
+    "build:4": "astro build --mode empresa4 --outDir dist/empresa4",
+    "build:5": "astro build --mode empresa5 --outDir dist/empresa5",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.16.6"
+    "@tailwindcss/vite": "^4.1.18",
+    "astro": "^5.16.6",
+    "tailwindcss": "^4.1.18"
   }
 }

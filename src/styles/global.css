@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  /* Registramos las variables para que Tailwind genere las utilidades */
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+}
+
+@layer base {
+  :root {
+    /* Valores iniciales para que Tailwind no falle al compilar */
+    --brand-primary: #000000;
+    --brand-secondary: #cccccc;
+  }
+
+  /* Define aquí los estilos base para tus encabezados */
+  h1 {
+    @apply text-4xl font-bold text-brand-primary leading-tight;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold text-slate-800;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    @apply bg-white text-slate-900 antialiased;
+  }
+}
+
+@layer components {
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* Ahora .btn-main funcionará porque 'brand-primary' ya es una utilidad válida */
+  .btn-main {
+    @apply bg-brand-primary text-white px-4 py-2 rounded transition-colors hover:bg-brand-secondary;
+  }
+}

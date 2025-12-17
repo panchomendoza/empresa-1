@@ -1,0 +1,27 @@
+---
+import '../styles/global.css';
+import SEO from '../components/SEO.astro';
+import Header from '../components/Header.astro';
+
+const { title, description, image } = Astro.props; // Recibimos props de las páginas
+
+const primary = import.meta.env.PUBLIC_COLOR_PRIMARY || '#000';
+const secondary = import.meta.env.PUBLIC_COLOR_SECONDARY || '#ccc';
+---
+
+<html lang="es">
+    <head>
+        <SEO title={title} description={description} image={image} />
+
+        <style define:vars={{ primary, secondary }}>
+            :root {
+                --brand-primary: var(--primary);
+                --brand-secondary: var(--secondary);
+            }
+        </style>
+    </head>
+    <body class="min-h-screen bg-slate-50">
+        <Header />
+        <slot />
+    </body>
+</html>
