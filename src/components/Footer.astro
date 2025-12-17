@@ -1,0 +1,36 @@
+---
+// Footer.astro
+const LOGO = import.meta.env.PUBLIC_LOGO_URL;
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="bg-gray-900 text-white">
+  <div class="container mx-auto px-6 py-8">
+    <div class="flex flex-col md:flex-row items-center justify-between">
+      <!-- Logo y nombre a la izquierda -->
+      <div class="flex items-center space-x-3 mb-4 md:mb-0">
+        <img src={LOGO} alt="Logo" class="h-10 w-auto" />
+        <div class="flex flex-col">
+          <span class="text-lg font-bold">Mi Empresa</span>
+          <span class="text-sm text-gray-400">© {currentYear}</span>
+        </div>
+      </div>
+
+      <!-- Opciones del menú a la derecha -->
+      <nav class="flex flex-wrap items-center justify-center md:justify-end gap-6">
+        <a href="/" class="text-gray-300 hover:text-white transition-colors">
+          Inicio
+        </a>
+        <a href="/nosotros" class="text-gray-300 hover:text-white transition-colors">
+          Nosotros
+        </a>
+        <a href="/servicios/desarrollo" class="text-gray-300 hover:text-white transition-colors">
+          Servicios
+        </a>
+        <a href="/contacto" class="text-gray-300 hover:text-white transition-colors">
+          Contacto
+        </a>
+      </nav>
+    </div>
+  </div>
+</footer>

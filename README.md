@@ -15,8 +15,9 @@ nvm use
 
 # Instalación de dependencias (solo con pnpm)
 pnpm install
+```
 
-📂 Estructura del Proyecto
+## 📂 Estructura del Proyecto
 
 /
 ├── dist/                # Salidas de producción (una carpeta por filial)
@@ -29,47 +30,49 @@ pnpm install
 ├── .nvmrc               # Versión de Node.js fijada
 ├── .npmrc               # Configuración estricta de pnpm/engines
 └── package.json         # Orquestador de scripts multi-sitio
+```
 
-🧞 Comandos de Desarrollo
+## 🧞 Comandos de Desarrollo
 
 Para trabajar en una filial específica, usa el comando correspondiente. Esto cargará los colores y el nombre de dicha empresa:
+**Servidor local:** `localhost:4321`
 
-localhost:4321
+| Comando | Descripción |
+|---------|-------------|
+| `pnpm dev:1` | Inicia Empresa 1 |
+| `pnpm dev:2` | Inicia Empresa 2 |
+| `pnpm dev:3` | Inicia Empresa 3 |
+| `pnpm dev:4` | Inicia Empresa 4 |
+| `pnpm dev:5` | Inicia Empresa 5 |
 
-pnpm dev:1	Inicia Empresa 1
-pnpm dev:2	Inicia Empresa 2
-pnpm dev:3	Inicia Empresa 3
-pnpm dev:4	Inicia Empresa 4
-pnpm dev:5	Inicia Empresa 5
+## `/dist`. Esto permite subir cada filial a un Bucket de S3 o distribución de CloudFront distinta.
 
-🏗 Producción y Despliegue (AWS)
+**Build individual:** `pnpm build:1` (Genera `/dist/empresa1`)
 
-El build genera carpetas independientes en /dist. Esto permite subir cada filial a un Bucket de S3 o distribución de CloudFront distinta.
+**Build total:** `pnpm build:all` (Compila las 5 filiales secuencialmente)
 
-Build individual: pnpm build:1 (Genera /dist/empresa1)
-
+## 
 Build total: pnpm build:all (Compila las 5 filiales secuencialmente)
 
-🎨 Lógica de Branding (Theming)
+🎨 Lógica de Branding (Theming)`.env.empresaX` debe contener:
 
-El proyecto utiliza CSS Custom Properties (Variables CSS) inyectadas dinámicamente. Cada archivo .env.empresaX debe contener:
-
+```env
 PUBLIC_SITE_NAME="Nombre Real de la Empresa"
 PUBLIC_COLOR_PRIMARY="#HEX_AQUI"
 PUBLIC_COLOR_SECONDARY="#HEX_AQUI"
+```
 
 Estas variables se transforman en el Layout a:
 
-var(--brand-primary)
-
-var(--brand-secondary)
+- `var(--brand-primary)`
+- `var(--brand-secondary)`
 
 Cualquier componente nuevo debe utilizar estas variables para asegurar que cambie de color automáticamente según la filial ejecutada.
 
-🔒 Seguridad y Git
+## 🔒 Seguridad y Git
 
-Variables: Solo las variables con prefijo PUBLIC_ son accesibles en el frontend.
-
-Git: Los archivos .env.empresa* están en el .gitignore. Nunca subas estos archivos al repositorio.
+- **Variables:** Solo las variables con prefijo `PUBLIC_` son accesibles en el frontend.
+- **Git:** Los archivos `.env.empresa*` están en el `.gitignore`. Nunca subas estos archivos al repositorio.
+- **Ejemplo:** Usa `.env.example`presa* están en el .gitignore. Nunca subas estos archivos al repositorio.
 
 Ejemplo: Usa .env.example como plantilla para configurar nuevas estaciones de trabajo.
