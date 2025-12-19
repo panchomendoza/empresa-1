@@ -4,10 +4,18 @@ import SEO from '../components/SEO.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
-const { title, description, image } = Astro.props; // Recibimos props de las páginas
+// Recibimos la configuración global como prop
+const { title, description, image, config } = Astro.props;
 
-const primary = import.meta.env.PUBLIC_COLOR_PRIMARY || '#000';
-const secondary = import.meta.env.PUBLIC_COLOR_SECONDARY || '#ccc';
+// Extraemos los colores directamente del content
+const primary = config?.content?.color_primary || '#000000';
+const secondary = config?.content?.color_secondary || '#cccccc';
+
+// Extraemos el logo y otros datos
+const logo = config?.content?.logo?.filename || '';
+const menuItems = config?.content?.menu_items || [];
+const socialLinks = config?.content?.social_links || [];
+const copyrightText = config?.content?.copyright_text || {};
 ---
 
 <html lang="es">
@@ -22,10 +30,12 @@ const secondary = import.meta.env.PUBLIC_COLOR_SECONDARY || '#ccc';
         </style>
     </head>
     <body class="min-h-screen bg-slate-50 flex flex-col">
-        <Header />
+        <Header data={{ logo, menuItems }} />
+        
         <main class="flex-grow">
             <slot />
         </main>
-        <Footer />
+
+        <Footer data={{ logo, socialLinks, copyrightText }} />
     </body>
 </html>

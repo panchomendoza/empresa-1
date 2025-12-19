@@ -1,13 +1,35 @@
 ---
+import { useStoryblokApi } from '@storyblok/astro';
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import MainLayout from '../layouts/MainLayout.astro';
+
+// Identificar la empresa actual desde las variables de entorno
+const currentTenantFolder = import.meta.env.PUBLIC_SITE_FOLDER || 'empresa-1';
+const storyblokApi = useStoryblokApi();
+
+// 1. Obtener la página Home de la empresa actual
+const { data } = await storyblokApi.get(`cdn/stories/${currentTenantFolder}/home`, {
+  version: 'draft',
+}) as any;
+const story = data.story;
+
+// 2. Obtener la Configuración Global de la empresa actual
+let globalConfig;
+try {
+    const { data: configResponse } = await storyblokApi.get(`cdn/stories/${currentTenantFolder}/settings`, {
+        version: 'draft',
+    }) as any;
+    globalConfig = configResponse.story;
+} catch (error) {
+    console.error(`No se encontró configuración para: ${currentTenantFolder}`, error);
+}
+
 ---
 
 <MainLayout 
-  title="Inicio" 
-  description="Bienvenido a nuestra filial oficial donde encontrarás los mejores servicios corporativos."
+    title={story.content.seo?.title || story.name} 
+    description={story.content.seo?.description}
+    config={globalConfig}
 >
-    <main class="container py-20">
-        <h1>Bienvenido</h1>
-        <p>Contenido optimizado para SEO.</p>
-    </main>
-</Layout>
+    <StoryblokComponent blok={story.content} />
+</MainLayout>
