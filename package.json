@@ -36,6 +36,8 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@storyblok/astro": "^7.3.7",
+    "@storyblok/richtext": "^3.8.2",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.16.6",
     "tailwindcss": "^4.1.18"
