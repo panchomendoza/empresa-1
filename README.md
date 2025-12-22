@@ -1,78 +1,245 @@
-# 🚀 Portal Multi-filiales (Astro Architecture)
+# 🚀 Portal Multi-filiales (Astro + Storyblok)
 
-Este proyecto es una plataforma única de código base (**Single Codebase**) diseñada para servir a **5 filiales diferentes**. Utiliza Astro para generar sitios estáticos independientes, inyectando branding y configuraciones específicas mediante variables de entorno.
+Este proyecto es una plataforma única de código base (**Single Codebase**) diseñada para servir a **5 filiales diferentes**. Utiliza Astro como framework y Storyblok como CMS headless para generar sitios estáticos independientes, inyectando branding y configuraciones específicas mediante variables de entorno.
+
+---
 
 ## 🛠 Requisitos del Sistema
 
-Para garantizar la consistencia entre los desarrollos de las 5 filiales, este proyecto impone las siguientes reglas:
+Para garantizar la consistencia entre los desarrollos de las 5 filiales, este proyecto requiere:
 
-- **Node.js**: Versión definida en el archivo `.nvmrc` (v22+).
-- **Gestor de paquetes**: **pnpm** (obligatorio). El uso de `npm` o `yarn` está bloqueado por script.
+- **Node.js**: Versión definida en `.nvmrc` (v20+)
+- **Gestor de paquetes**: **pnpm** (obligatorio). El uso de `npm` o `yarn` está bloqueado por script
+- **Storyblok**: Tokens de acceso configurados para cada empresa y ambiente
+
+### Instalación
 
 ```bash
-# Para asegurar el uso de la versión de Node correcta
+# Usar la versión correcta de Node
 nvm use
 
-# Instalación de dependencias (solo con pnpm)
+# Instalar dependencias (solo con pnpm)
 pnpm install
 ```
 
+---
+
 ## 📂 Estructura del Proyecto
 
+```
 /
-├── dist/                # Salidas de producción (una carpeta por filial)
+├── env/                     # 🔐 Variables de entorno organizadas
+│   ├── empresa1/
+│   │   ├── .env.local       # Desarrollo local
+│   │   ├── .env.qa          # QA
+│   │   ├── .env.production  # Producción
+│   │   └── .env.example     # Plantilla
+│   ├── empresa2/
+│   ├── empresa3/
+│   ├── empresa4/
+│   └── empresa5/
+├── dist/                    # Salidas de build (una carpeta por empresa/ambiente)
+│   ├── empresa1/
+│   │   ├── qa/
+│   │   └── production/
+│   └── empresa2/...
+├── public/
+│   └── assets/
+│       ├── empresa1/        # Assets específicos por empresa
+│       ├── empresa2/
+│       └── ...
 ├── src/
-│   ├── layouts/         # MainLayout.astro (Puente entre .env y CSS)
-│   ├── pages/           # Rutas comunes (index.astro, etc.)
-│   ├── styles/          # base.css (Estilos globales compartidos)
-│   └── components/      # Componentes UI reutilizables
-├── .env.empresa1...5    # Variables de branding por filial (Ignorados en Git)
-├── .nvmrc               # Versión de Node.js fijada
-├── .npmrc               # Configuración estricta de pnpm/engines
-└── package.json         # Orquestador de scripts multi-sitio
+│   ├── components/          # Componentes reutilizables
+│   ├── layouts/             # MainLayout.astro (Layout principal)
+│   ├── pages/               # Páginas Astro
+│   │   ├── index.astro
+│   │   └── [...slug].astro  # Rutas dinámicas de Storyblok
+│   ├── storyblok/           # Componentes de Storyblok
+│   └── styles/              # Estilos globales
+├── astro.config.mjs         # Configuración de Astro + dotenv
+├── .nvmrc                   # Versión de Node.js
+└── package.json             # Scripts multi-empresa
 ```
 
-## 🧞 Comandos de Desarrollo
+---
 
-Para trabajar en una filial específica, usa el comando correspondiente. Esto cargará los colores y el nombre de dicha empresa:
-**Servidor local:** `localhost:4321`
+## ⚙️ Variables de Entorno
 
-| Comando | Descripción |
-|---------|-------------|
-| `pnpm dev:1` | Inicia Empresa 1 |
-| `pnpm dev:2` | Inicia Empresa 2 |
-| `pnpm dev:3` | Inicia Empresa 3 |
-| `pnpm dev:4` | Inicia Empresa 4 |
-| `pnpm dev:5` | Inicia Empresa 5 |
+Cada empresa tiene 3 archivos de configuración (local, qa, production) dentro de `env/empresaX/`:
 
-## `/dist`. Esto permite subir cada filial a un Bucket de S3 o distribución de CloudFront distinta.
+### Estructura de archivos .env
 
-**Build individual:** `pnpm build:1` (Genera `/dist/empresa1`)
+```bash
+env/
+├── empresa1/
+│   ├── .env.local       # Para desarrollo local (draft)
+│   ├── .env.qa          # Para ambiente QA (draft)
+│   ├── .env.production  # Para producción (published)
+│   └── .env.example     # Plantilla de referencia
+└── ...
+```
 
-**Build total:** `pnpm build:all` (Compila las 5 filiales secuencialmente)
-
-## 
-Build total: pnpm build:all (Compila las 5 filiales secuencialmente)
-
-🎨 Lógica de Branding (Theming)`.env.empresaX` debe contener:
+### Variables requeridas
 
 ```env
-PUBLIC_SITE_NAME="Nombre Real de la Empresa"
-PUBLIC_COLOR_PRIMARY="#HEX_AQUI"
-PUBLIC_COLOR_SECONDARY="#HEX_AQUI"
+# Token de acceso a Storyblok (NO incluir prefijo PUBLIC_)
+STORYBLOK_TOKEN=tu_token_aqui
+
+# Carpeta de la empresa en Storyblok (con prefijo PUBLIC_)
+PUBLIC_SITE_FOLDER=empresa-1
+
+# Nombre del sitio
+PUBLIC_SITE_NAME="Empresa 1"
+
+# Versión de contenido de Storyblok
+PUBLIC_STORYBLOK_VERSION=draft  # o 'published' en producción
 ```
 
-Estas variables se transforman en el Layout a:
+### Configuración inicial
 
-- `var(--brand-primary)`
-- `var(--brand-secondary)`
+1. Copia `.env.example` para cada ambiente:
+   ```bash
+   cp env/empresa1/.env.example env/empresa1/.env.local
+   ```
 
-Cualquier componente nuevo debe utilizar estas variables para asegurar que cambie de color automáticamente según la filial ejecutada.
+2. Edita el archivo y configura las variables con los valores correctos
 
-## 🔒 Seguridad y Git
+3. **Importante:** Los archivos `.env.*` están en `.gitignore` y **nunca deben subirse a Git**
 
-- **Variables:** Solo las variables con prefijo `PUBLIC_` son accesibles en el frontend.
-- **Git:** Los archivos `.env.empresa*` están en el `.gitignore`. Nunca subas estos archivos al repositorio.
-- **Ejemplo:** Usa `.env.example`presa* están en el .gitignore. Nunca subas estos archivos al repositorio.
+---
 
-Ejemplo: Usa .env.example como plantilla para configurar nuevas estaciones de trabajo.
+## 🧞 Comandos Disponibles
+
+### Desarrollo (Local)
+
+```bash
+pnpm dev        # Empresa 1 (por defecto)
+pnpm dev:1      # Empresa 1 - Carga env/empresa1/.env.local
+pnpm dev:2      # Empresa 2 - Carga env/empresa2/.env.local
+```
+
+Servidor local: **http://localhost:4321**
+
+### Build por Ambiente
+
+```bash
+# QA
+pnpm build:1:qa      # Empresa 1 QA → dist/empresa1/qa
+pnpm build:2:qa      # Empresa 2 QA → dist/empresa2/qa
+
+# Producción
+pnpm build:1:prod    # Empresa 1 PROD → dist/empresa1/production
+pnpm build:2:prod    # Empresa 2 PROD → dist/empresa2/production
+```
+
+### Vista previa del build
+
+```bash
+pnpm preview
+```
+
+---
+
+## 🎨 Lógica de Branding (Theming)
+
+El proyecto utiliza variables CSS dinámicas que se inyectan desde las variables de entorno:
+
+### Variables de entorno de branding
+
+```env
+PUBLIC_COLOR_PRIMARY="#0055ff"
+PUBLIC_COLOR_SECONDARY="#0033AA"
+PUBLIC_SITE_NAME="Empresa 1"
+```
+
+### Uso en CSS
+
+Estas variables se transforman automáticamente en:
+
+```css
+:root {
+  --brand-primary: #0055ff;
+  --brand-secondary: #0033AA;
+}
+```
+
+### En componentes
+
+```astro
+<div style="background-color: var(--brand-primary);">
+  {import.meta.env.PUBLIC_SITE_NAME}
+</div>
+```
+
+**Importante:** Siempre usar las variables CSS (`var(--brand-primary)`) en lugar de colores hardcodeados para mantener el sistema multi-empresa funcionando correctamente.
+
+---
+
+## 🔐 Seguridad
+
+### Variables públicas vs privadas
+
+- **`PUBLIC_*`**: Accesibles en el cliente (frontend)
+- **Sin prefijo**: Solo accesibles en el servidor (backend/build)
+
+```env
+STORYBLOK_TOKEN=xxx              # ❌ NO expuesto al cliente (seguro)
+PUBLIC_SITE_FOLDER=empresa-1     # ✅ Expuesto al cliente (público)
+```
+
+### Git y secretos
+
+- ✅ Todos los archivos `.env.*` están en `.gitignore`
+- ✅ Solo `.env.example` se sube al repositorio
+- ❌ **Nunca** hagas commit de archivos `.env` reales
+- ✅ Usa servicios de CI/CD para inyectar variables en producción
+
+---
+
+## 🚀 Despliegue
+
+### AWS S3 / CloudFront
+
+Cada empresa se puede desplegar a su propio bucket/distribución:
+
+```bash
+# Build de producción
+pnpm build:1:prod
+
+# Subir a S3 (ejemplo)
+aws s3 sync dist/empresa1/production/ s3://empresa1-bucket/
+```
+
+### Variables en CI/CD
+
+En lugar de archivos `.env`, configura las variables directamente en tu plataforma:
+
+- **GitHub Actions**: Repository secrets
+- **AWS CodeBuild**: Variables de entorno
+- **Vercel/Netlify**: Environment variables en el dashboard
+
+---
+
+## 📚 Tecnologías Utilizadas
+
+- **[Astro](https://astro.build)** - Framework web estático
+- **[Storyblok](https://www.storyblok.com)** - CMS headless
+- **[Tailwind CSS](https://tailwindcss.com)** - Framework CSS
+- **[pnpm](https://pnpm.io)** - Gestor de paquetes
+- **[dotenv](https://github.com/motdotla/dotenv)** - Carga de variables de entorno
+
+---
+
+## 🤝 Contribución
+
+1. Crea una rama desde `main`
+2. Realiza tus cambios
+3. Asegúrate de probar con **todas las empresas** afectadas
+4. Haz commit sin incluir archivos `.env`
+5. Crea un Pull Request
+
+---
+
+## 📄 Licencia
+
+MIT

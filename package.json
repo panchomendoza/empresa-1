@@ -19,13 +19,13 @@
   ],
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "dev:1": "astro dev --mode empresa1",
-    "dev:2": "astro dev --mode empresa2",
-    "build:all": "pnpm build:1 && pnpm build:2",
-    "build:1": "astro build --mode empresa1 --outDir dist/empresa1",
-    "build:2": "astro build --mode empresa2 --outDir dist/empresa2",
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "EMPRESA=empresa1 astro dev",
+    "dev:1": "EMPRESA=empresa1 astro dev",
+    "dev:2": "EMPRESA=empresa2 astro dev",
+    "build:1:qa": "EMPRESA=empresa1 NODE_ENV=qa astro build --outDir dist/empresa1/qa",
+    "build:1:prod": "EMPRESA=empresa1 NODE_ENV=production astro build --outDir dist/empresa1/production",
+    "build:2:qa": "EMPRESA=empresa2 NODE_ENV=qa astro build --outDir dist/empresa2/qa",
+    "build:2:prod": "EMPRESA=empresa2 NODE_ENV=production astro build --outDir dist/empresa2/production",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -35,5 +35,8 @@
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.16.6",
     "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.3"
   }
 }
