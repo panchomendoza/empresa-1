@@ -1,11 +1,23 @@
 {
   "headers": [
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "headers": [
         {
           "key": "Content-Security-Policy",
           "value": "frame-ancestors https://app.storyblok.com"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/$1",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-frame-options"
         }
       ]
     }
