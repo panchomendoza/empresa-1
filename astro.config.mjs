@@ -45,7 +45,7 @@ const isQA = ambiente === 'qa';
 
 // Configuración base
 const baseConfig = {
-  site: 'https://localhost:4321',
+  site: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:4321',
   integrations: [
     storyblok({
       accessToken: process.env.STORYBLOK_TOKEN,
