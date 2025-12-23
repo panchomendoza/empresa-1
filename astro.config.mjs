@@ -25,19 +25,21 @@ if (vercelEnv === 'production') {
   ambiente = env === 'development' ? 'local' : env;
 }
 
-// Cargar archivo .env desde carpeta: env/empresa1/.env.local
-const envFile = `env/${company}/.env.${ambiente}`;
-dotenv.config({ path: envFile });
+// Cargar archivo .env desde carpeta SOLO en local (no en Vercel)
+if (!vercelEnv) {
+  const envFile = `env/${company}/.env.${ambiente}`;
+  dotenv.config({ path: envFile });
+  console.log(`🔧 Archivo .env cargado: ${envFile}`);
+}
 
 console.log(`🏢 Empresa: ${company}`);
 console.log(`🌍 Ambiente: ${ambiente}`);
-console.log(`🔧 Archivo .env: ${envFile}`);
 console.log(`🔧 VERCEL_ENV: ${vercelEnv || 'No detectado (local)'}`);
 console.log(`🔑 STORYBLOK_TOKEN: ${process.env.STORYBLOK_TOKEN ? '✅ Cargado' : '❌ No encontrado'}`);
 
 // Validar que el token exista
 if (!process.env.STORYBLOK_TOKEN) {
-  throw new Error(`❌ STORYBLOK_TOKEN no encontrado en ${envFile}`);
+  throw new Error(`❌ STORYBLOK_TOKEN no encontrado. En Vercel, verifica las variables de entorno.`);
 }
 
 // Configuración dinámica según ambiente
