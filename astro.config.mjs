@@ -43,9 +43,18 @@ if (!process.env.STORYBLOK_TOKEN) {
 // Configuración dinámica según ambiente
 const isQA = ambiente === 'qa';
 
+const site =
+  process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : 'https://localhost:4321';
+
+    
+console.log("🚀 ~ site:", site)
+
+
 // Configuración base
 const baseConfig = {
-  site: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:4321',
+  site,
   integrations: [
     storyblok({
       accessToken: process.env.STORYBLOK_TOKEN,
