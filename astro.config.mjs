@@ -25,9 +25,10 @@ if (vercelEnv === 'production') {
   ambiente = env === 'development' ? 'local' : env;
 }
 
-// Cargar archivo .env desde carpeta SOLO en local (no en Vercel)
+// Cargar archivo .env desde raíz SOLO en local (no en Vercel)
+// Formato: .env.empresa1.local, .env.empresa1.qa, .env.empresa1.production
 if (!vercelEnv) {
-  const envFile = `env/${company}/.env.${ambiente}`;
+  const envFile = `.env.${company}.${ambiente}`;
   dotenv.config({ path: envFile });
   console.log(`🔧 Archivo .env cargado: ${envFile}`);
 }
