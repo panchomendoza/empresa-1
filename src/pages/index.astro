@@ -5,11 +5,12 @@ import MainLayout from '../layouts/MainLayout.astro';
 
 // Identificar la empresa actual desde las variables de entorno
 const currentTenantFolder = import.meta.env.PUBLIC_SITE_FOLDER || 'empresa-1';
+const storyblokVersion = import.meta.env.PUBLIC_STORYBLOK_VERSION || 'draft';
 const storyblokApi = useStoryblokApi();
 
 // 1. Obtener la página Home de la empresa actual
 const { data } = await storyblokApi.get(`cdn/stories/${currentTenantFolder}/home`, {
-  version: 'draft',
+  version: storyblokVersion,
 }) as any;
 const story = data.story;
 
@@ -17,7 +18,7 @@ const story = data.story;
 let globalConfig;
 try {
     const { data: configResponse } = await storyblokApi.get(`cdn/stories/${currentTenantFolder}/settings`, {
-        version: 'draft',
+        version: storyblokVersion,
     }) as any;
     globalConfig = configResponse.story;
 } catch (error) {
