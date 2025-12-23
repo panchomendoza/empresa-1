@@ -34,6 +34,12 @@ export async function getStaticPaths() {
 }
 
 const { slug = 'index' } = Astro.params as { slug?: string };
+
+// Excluir rutas de Vercel Analytics y otros assets
+if (slug.startsWith('_vercel/') || slug.startsWith('assets/')) {
+  return Astro.redirect('/404', 404);
+}
+
 const storyblokApi = useStoryblokApi();
 const storyblokVersion = import.meta.env.PUBLIC_STORYBLOK_VERSION || 'draft';
 
