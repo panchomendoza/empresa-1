@@ -3,76 +3,67 @@ import { useStoryblokApi } from '@storyblok/astro';
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import MainLayout from '../layouts/MainLayout.astro';
 
-// Identificar la empresa actual desde las variables de entorno
 const currentTenantFolder = import.meta.env.PUBLIC_SITE_FOLDER;
+const storyblokVersion = import.meta.env.PUBLIC_STORYBLOK_VERSION || 'draft';
 
-// getStaticPaths solo se ejecuta en modo SSG (static)
-// En modo SSR (server), esta función no se ejecuta
 export async function getStaticPaths() {
   const storyblokApi = useStoryblokApi();
   const currentTenantFolder = import.meta.env.PUBLIC_SITE_FOLDER;
   const storyblokVersion = import.meta.env.PUBLIC_STORYBLOK_VERSION;
-  console.log("🚀 ~ getStaticPaths ~ currentTenantFolder:", currentTenantFolder)
-  console.log("🚀 ~ getStaticPaths ~ storyblokVersion:", storyblokVersion)
   
-  // Traemos solo las páginas de la empresa actual
   const { data } = await storyblokApi.get('cdn/stories', {
     version: storyblokVersion,
     starts_with: `${currentTenantFolder}/`,
   });
 
-  const paths = data.stories
-    .filter((story: any) => story.content.component !== 'global') // Excluir tipo Global
+  return data.stories
+    .filter((story: any) => story.content.component !== 'global' && story.slug !== 'settings') 
     .map((story: any) => {
-      // Remover el prefijo de la empresa del slug
       const slugWithoutFolder = story.full_slug.replace(`${currentTenantFolder}/`, '');
       return {
         params: { slug: slugWithoutFolder || 'index' },
       };
     });
-  return paths;
 }
 
-const { slug = 'index' } = Astro.params as { slug?: string };
+const { slug = 'index' } = Astro.params;
 
-// Excluir rutas de Vercel Analytics y otros assets
 if (slug.startsWith('_vercel/') || slug.startsWith('assets/')) {
   return Astro.redirect('/404', 404);
 }
 
 const storyblokApi = useStoryblokApi();
-const storyblokVersion = import.meta.env.PUBLIC_STORYBLOK_VERSION || 'draft';
-
-// Construir el slug completo con la carpeta de la empresa
 const fullSlug = slug === 'index' ? currentTenantFolder : `${currentTenantFolder}/${slug}`;
 
-// 1. Obtener la Historia (Página) actual
+// 1. Obtener la Página actual
 const { data } = await storyblokApi.get(`cdn/stories/${fullSlug}`, {
   version: storyblokVersion,
 }) as any;
 const story = data.story;
 
-// console.log('📄 Story data:', JSON.stringify(story, null, 2));
-// console.log('📄 Story content:', JSON.stringify(story.content, null, 2));
+// 2. Extraer datos de SEO (asumiendo nombres de campos: seo_title, seo_description, og_image)
+const seoData = {
+  title: story.content.seo_title || story.name,
+  description: story.content.seo_description,
+  image: story.content.og_image?.filename // Extraemos la URL del asset de Storyblok
+};
 
-// 2. Obtener la Configuración Global de la empresa actual
+// 3. Obtener Configuración Global
 let globalConfig;
 try {
     const { data: configResponse } = await storyblokApi.get(`cdn/stories/${currentTenantFolder}/settings`, {
         version: storyblokVersion,
     }) as any;
     globalConfig = configResponse.story;
-    // console.log('⚙️ Global config:', JSON.stringify(globalConfig, null, 2));
 } catch (error) {
-    console.error(`No se encontró configuración para: ${currentTenantFolder}`, error);
-    // Podrías cargar una config por defecto aquí si falla
+    console.error(`Error cargando settings para: ${currentTenantFolder}`, error);
 }
-
 ---
 
 <MainLayout 
-    title={story.content.seo?.title || story.name} 
-    description={story.content.seo?.description}
+    title={seoData.title} 
+    description={seoData.description}
+    image={seoData.image}
     config={globalConfig}
 >
     <StoryblokComponent blok={story.content} />

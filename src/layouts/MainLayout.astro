@@ -4,23 +4,26 @@ import SEO from '../components/SEO.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
-// Recibimos la configuración global como prop
 const { title, description, image, config } = Astro.props;
 
-// Extraemos los colores directamente del content
+// Colores
 const primary = config?.content?.color_primary || '#000000';
 const secondary = config?.content?.color_secondary || '#cccccc';
 
-// Extraemos el logo y otros datos
+// Assets y navegación
 const logo = config?.content?.logo?.filename || '';
 const menuItems = config?.content?.menu_items || [];
 const socialLinks = config?.content?.social_links || [];
-const copyrightText = config?.content?.copyright_text || {};
+const copyrightText = config?.content?.copyright_text || "";
 ---
 
 <html lang="es">
     <head>
-        <SEO title={title} description={description} image={image} />
+        <SEO 
+            title={title} 
+            description={description} 
+            image={image} 
+        />
 
         <style define:vars={{ primary, secondary }}>
             :root {
