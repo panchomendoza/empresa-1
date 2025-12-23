@@ -6,6 +6,8 @@ import MainLayout from '../layouts/MainLayout.astro';
 // Identificar la empresa actual desde las variables de entorno
 const currentTenantFolder = import.meta.env.PUBLIC_SITE_FOLDER;
 
+// getStaticPaths solo se ejecuta en modo SSG (static)
+// En modo SSR (server), esta función no se ejecuta
 export async function getStaticPaths() {
   const storyblokApi = useStoryblokApi();
   const currentTenantFolder = import.meta.env.PUBLIC_SITE_FOLDER;
@@ -31,7 +33,7 @@ export async function getStaticPaths() {
   return paths;
 }
 
-const { slug } = Astro.params as { slug: string };
+const { slug = 'index' } = Astro.params as { slug?: string };
 const storyblokApi = useStoryblokApi();
 const storyblokVersion = import.meta.env.PUBLIC_STORYBLOK_VERSION || 'draft';
 
