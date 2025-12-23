@@ -10,10 +10,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
     headers: response.headers
   });
   
-  // Eliminar X-Frame-Options y agregar CSP
+  // Eliminar todos los headers que bloquean iframe
   newResponse.headers.delete('x-frame-options');
   newResponse.headers.delete('X-Frame-Options');
-  newResponse.headers.set('Content-Security-Policy', 'frame-ancestors https://app.storyblok.com');
+  
+  // Solo agregar CSP si no existe
+  if (!newResponse.headers.has('Content-Security-Policy')) {
+    newResponse.headers.set('Content-Security-Policy', 'frame-ancestors https://app.storyblok.com');
+  }
+  
+  // Agregar headers adicionales para debugging
+  newResponse.headers.set('X-Storyblok-Enabled', 'true');
   
   return newResponse;
 });

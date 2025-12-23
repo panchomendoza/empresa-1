@@ -4,7 +4,7 @@ import { storyblok } from '@storyblok/astro';
 import dotenv from 'dotenv';
 
 import tailwindcss from '@tailwindcss/vite';
-import vercel from '@astrojs/vercel/serverless';
+import vercel from '@astrojs/vercel';
 
 // Obtener empresa y ambiente
 const company = process.env.EMPRESA || 'empresa1';
@@ -70,10 +70,7 @@ export default defineConfig(
     ? {
         ...baseConfig,
         output: 'server',
-        adapter: vercel({
-          webAnalytics: { enabled: false },
-          edgeMiddleware: true
-        })
+        adapter: vercel()
       }
     : {
         ...baseConfig,

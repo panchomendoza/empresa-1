@@ -9,17 +9,5 @@
         }
       ]
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/$1",
-      "has": [
-        {
-          "type": "header",
-          "key": "x-frame-options"
-        }
-      ]
-    }
   ]
 }
