@@ -1,43 +1,71 @@
 @import "tailwindcss";
 
 @theme {
-  /* Registramos las variables para que Tailwind genere las utilidades */
+  /* 1. Registramos las variables dinámicas de marca */
   --color-brand-primary: var(--brand-primary);
   --color-brand-secondary: var(--brand-secondary);
+  --color-brand-bg: var(--brand-bg);
+  
+  /* 2. Registramos los colores de interfaz (Semánticos) */
+  --color-ui-bg-primary: var(--bg-primary);
+  --color-ui-bg-secondary: var(--bg-secondary);
+  --color-ui-text-primary: var(--text-primary);
+  --color-ui-text-secondary: var(--text-secondary);
+
+  /* 3. Registramos el radio de borde */
+  --radius-brand: var(--brand-radius);
 }
 
 @layer base {
   :root {
-    /* Valores iniciales para que Tailwind no falle al compilar */
+    /* Fallbacks para evitar errores de compilación */
     --brand-primary: #000000;
     --brand-secondary: #cccccc;
+    --brand-bg: #ffffff;
+    --brand-radius: 4px;
+    
+    /* Variables de tema claro */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
   }
 
-  /* Define aquí los estilos base para tus encabezados */
+  /* Tema oscuro - Sincronizado con 'selector' */
+  .dark {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    
+    /* Opcional: ajustar el color de marca para que sea más brillante en oscuro */
+    /* --brand-primary: #4ade80; */
+  }
+
+  /* 4. Aplicamos las utilidades usando los nombres registrados en @theme */
   h1 {
     @apply text-4xl font-bold text-brand-primary leading-tight;
   }
 
   h2 {
-    @apply text-2xl font-semibold text-slate-800;
+    @apply text-2xl font-semibold text-ui-text-primary;
   }
 
   body {
     margin: 0;
-    font-family: 'Inter', sans-serif;
-    @apply bg-white text-slate-900 antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+    /* Usamos las variables ui-bg-primary y ui-text-primary */
+    @apply bg-ui-bg-primary text-ui-text-primary antialiased transition-colors duration-200;
   }
 }
 
 @layer components {
   .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 
-  /* Ahora .btn-main funcionará porque 'brand-primary' ya es una utilidad válida */
   .btn-main {
-    @apply bg-brand-primary text-white px-4 py-2 rounded transition-colors hover:bg-brand-secondary;
+    /* Usamos rounded-brand definido arriba */
+    @apply bg-brand-primary text-white px-4 py-2 rounded-brand transition-all hover:bg-brand-secondary active:scale-95;
   }
 }

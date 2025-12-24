@@ -35,6 +35,21 @@ const copyrightText = branding?.copyright_text || "";
             favicon={favicon}
         />
 
+        <script is:inline>
+            const theme = (() => {
+                if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+                return localStorage.getItem('theme');
+                }
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            })();
+
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        </script>
+
         <style is:global define:vars={{ primary, secondary, backgroundColor, borderRadius }}>
             :root {
                 --brand-primary: var(--primary);
@@ -43,16 +58,16 @@ const copyrightText = branding?.copyright_text || "";
                 --brand-radius: var(--borderRadius);
             }
 
-            /* Aplicación automática de los estilos globales */
-            body {
-                background-color: var(--brand-bg);
+            /* Configuración para Dark Mode manual si no usas variables de Storyblok para todo */
+            :root.dark {
+                --brand-bg: #0f172a; /* Ejemplo de color oscuro por defecto */
+                /* Aquí podrías sobreescribir las variables de Storyblok si el usuario 
+                   no definió colores específicos para modo oscuro */
             }
 
-            /* Opcional: Puedes forzar que todos los botones e inputs 
-               del sitio respeten el radio de borde definido por el usuario 
-            */
-            button, input, select, textarea, .card, .rounded-brand {
-                border-radius: var(--brand-radius) !important;
+            body {
+                background-color: var(--brand-bg);
+                transition: background-color 0.3s ease, color 0.3s ease;
             }
         </style>
     </head>

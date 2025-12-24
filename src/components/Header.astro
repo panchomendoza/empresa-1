@@ -1,4 +1,6 @@
 ---
+import ThemeToggle from './ThemeToggle.astro';
+
 const { data } = Astro.props;
 // console.log('🔰 Header data:', JSON.stringify(data, null, 2));
 // 'data' contiene lo que definiste en el Tab Header de Storyblok
@@ -57,6 +59,7 @@ const { data } = Astro.props;
       </nav>
 
       <div class="flex items-center gap-4">
+        <ThemeToggle />
         <button class="block rounded-sm bg-gray-100 p-2.5 text-gray-600 transition hover:text-gray-600/75 md:hidden dark:bg-gray-800 dark:text-white dark:hover:text-white/75">
           <span class="sr-only">Toggle menu</span>
           <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
