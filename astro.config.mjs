@@ -8,7 +8,6 @@ import vercel from '@astrojs/vercel';
 
 // Obtener empresa y ambiente
 const company = process.env.EMPRESA || 'empresa1';
-
 // Detectar ambiente:
 // - En Vercel: usar VERCEL_ENV (production, preview, development)
 // - Local: usar NODE_ENV
@@ -25,8 +24,6 @@ if (vercelEnv === 'production') {
   ambiente = env === 'development' ? 'local' : env;
 }
 
-// Cargar archivo .env desde raíz SOLO en local (no en Vercel)
-// Formato: .env.empresa1.local, .env.empresa1.qa, .env.empresa1.production
 if (!vercelEnv) {
   const envFile = `.env.${company}.${ambiente}`;
   dotenv.config({ path: envFile });
@@ -38,29 +35,30 @@ console.log(`🌍 Ambiente: ${ambiente}`);
 console.log(`🔧 VERCEL_ENV: ${vercelEnv || 'No detectado (local)'}`);
 console.log(`🔑 STORYBLOK_TOKEN: ${process.env.STORYBLOK_TOKEN ? '✅ Cargado' : '❌ No encontrado'}`);
 
-// Validar que el token exista
-if (!process.env.STORYBLOK_TOKEN) {
-  throw new Error(`❌ STORYBLOK_TOKEN no encontrado. En Vercel, verifica las variables de entorno.`);
-}
+// DETERMINAR SI ES SSR O SSG
+// Queremos SSR en QA (Vercel Preview) y en Local (para desarrollo fluido)
+// Queremos SSG solo en Producción final
+const isSSR = ambiente === 'qa' || ambiente === 'local';
 
-// Configuración dinámica según ambiente
-const isQA = ambiente === 'qa';
-
-const site =
-  process.env.VERCEL_URL
+const site = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
-    : 'https://localhost:4321';
+    : 'http://localhost:4321'; // Nota: localhost usualmente es http, no https
 
-    
-console.log("🚀 ~ site:", site)
-
-
-// Configuración base
-const baseConfig = {
+export default defineConfig({
   site,
+  // 1. El adapter debe estar presente para que Astro sepa cómo manejar SSR cuando lo necesite
+  adapter: vercel({
+    webAnalytics: { enabled: true }
+  }),
+  
+  // 2. Output dinámico: 'server' para QA/Local, 'static' para Prod
+  output: isSSR ? 'server' : 'static',
+
   integrations: [
     storyblok({
-      accessToken: process.env.STORYBLOK_TOKEN,
+      accessToken: process.env.STORYBLOK_TOKEN || '',
+      // 3. IMPORTANTE: El bridge solo debe estar activo donde haya SSR/Preview.
+      // En producción estática, el bridge debe ser false para evitar el error de headers.
       bridge: ambiente !== 'production',
       apiOptions: {
         region: 'eu'
@@ -72,20 +70,10 @@ const baseConfig = {
     })
   ],
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    // 4. Optimización para Vite con variables de entorno
+    optimizeDeps: {
+      exclude: ['@splitbee/web']
+    }
   }
-};
-
-// https://astro.build/config
-export default defineConfig(
-  isQA
-    ? {
-        ...baseConfig,
-        output: 'server',
-        adapter: vercel()
-      }
-    : {
-        ...baseConfig,
-        output: 'static'
-      }
-);
+});

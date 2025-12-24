@@ -3,18 +3,26 @@ import { useStoryblokApi } from '@storyblok/astro';
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import MainLayout from '../layouts/MainLayout.astro';
 
-// Identificar la empresa actual desde las variables de entorno
-const currentTenantFolder = import.meta.env.PUBLIC_SITE_FOLDER || 'empresa-1';
+export const prerender = import.meta.env.PUBLIC_STORYBLOK_VERSION !== 'draft';
+
+const currentTenantFolder = import.meta.env.PUBLIC_SITE_FOLDER;
 const storyblokVersion = import.meta.env.PUBLIC_STORYBLOK_VERSION || 'draft';
 const storyblokApi = useStoryblokApi();
 
-// 1. Obtener la página Home de la empresa actual
+// 1. Obtener Home
 const { data } = await storyblokApi.get(`cdn/stories/${currentTenantFolder}/home`, {
   version: storyblokVersion,
 }) as any;
 const story = data.story;
 
-// 2. Obtener la Configuración Global de la empresa actual
+// 2. Extraer SEO
+const seoData = {
+  title: story.content.seo_title || story.content.seo?.title || story.name,
+  description: story.content.seo_description || story.content.seo?.description,
+  image: story.content.og_image?.filename
+};
+
+// 3. Obtener Configuración Global
 let globalConfig;
 try {
     const { data: configResponse } = await storyblokApi.get(`cdn/stories/${currentTenantFolder}/settings`, {
@@ -22,14 +30,14 @@ try {
     }) as any;
     globalConfig = configResponse.story;
 } catch (error) {
-    console.error(`No se encontró configuración para: ${currentTenantFolder}`, error);
+    console.error(`Error settings home:`, error);
 }
-
 ---
 
 <MainLayout 
-    title={story.content.seo?.title || story.name} 
-    description={story.content.seo?.description}
+    title={seoData.title} 
+    description={seoData.description}
+    image={seoData.image}
     config={globalConfig}
 >
     <StoryblokComponent blok={story.content} />

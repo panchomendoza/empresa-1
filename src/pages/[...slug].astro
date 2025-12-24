@@ -3,6 +3,8 @@ import { useStoryblokApi } from '@storyblok/astro';
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import MainLayout from '../layouts/MainLayout.astro';
 
+export const prerender = import.meta.env.PUBLIC_STORYBLOK_VERSION !== 'draft';
+
 const currentTenantFolder = import.meta.env.PUBLIC_SITE_FOLDER;
 const storyblokVersion = import.meta.env.PUBLIC_STORYBLOK_VERSION || 'draft';
 
@@ -17,35 +19,36 @@ export async function getStaticPaths() {
   });
 
   return data.stories
-    .filter((story: any) => story.content.component !== 'global' && story.slug !== 'settings') 
+    .filter((story: any) => 
+        story.content.component !== 'global' && 
+        story.slug !== 'settings' && 
+        story.slug !== 'home' // Excluimos home porque ya tiene su index.astro
+    ) 
     .map((story: any) => {
       const slugWithoutFolder = story.full_slug.replace(`${currentTenantFolder}/`, '');
       return {
-        params: { slug: slugWithoutFolder || 'index' },
+        params: { slug: slugWithoutFolder },
       };
     });
 }
 
-const { slug = 'index' } = Astro.params;
+const { slug } = Astro.params;
 
-if (slug.startsWith('_vercel/') || slug.startsWith('assets/')) {
-  return Astro.redirect('/404', 404);
-}
 
 const storyblokApi = useStoryblokApi();
-const fullSlug = slug === 'index' ? currentTenantFolder : `${currentTenantFolder}/${slug}`;
+const fullSlug = `${currentTenantFolder}/${slug}`;
 
-// 1. Obtener la Página actual
+// 1. Obtener la Página
 const { data } = await storyblokApi.get(`cdn/stories/${fullSlug}`, {
   version: storyblokVersion,
 }) as any;
 const story = data.story;
 
-// 2. Extraer datos de SEO (asumiendo nombres de campos: seo_title, seo_description, og_image)
+// 2. Extraer SEO (Consistente con los nombres de campos de tu Storyblok)
 const seoData = {
-  title: story.content.seo_title || story.name,
-  description: story.content.seo_description,
-  image: story.content.og_image?.filename // Extraemos la URL del asset de Storyblok
+  title: story.content.seo_title || story.content.seo?.title || story.name,
+  description: story.content.seo_description || story.content.seo?.description,
+  image: story.content.og_image?.filename
 };
 
 // 3. Obtener Configuración Global
@@ -56,7 +59,7 @@ try {
     }) as any;
     globalConfig = configResponse.story;
 } catch (error) {
-    console.error(`Error cargando settings para: ${currentTenantFolder}`, error);
+    console.error(`Error settings:`, error);
 }
 ---
 
