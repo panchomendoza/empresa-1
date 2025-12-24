@@ -39,10 +39,16 @@ const storyblokApi = useStoryblokApi();
 const fullSlug = `${currentTenantFolder}/${slug}`;
 
 // 1. Obtener la Página
-const { data } = await storyblokApi.get(`cdn/stories/${fullSlug}`, {
-  version: storyblokVersion,
-}) as any;
-const story = data.story;
+let story;
+try {
+  const { data } = await storyblokApi.get(`cdn/stories/${fullSlug}`, {
+    version: storyblokVersion,
+  }) as any;
+  story = data.story;
+} catch (error) {
+  // Si la historia no existe, redirigir a 404
+  return Astro.redirect('/404');
+}
 
 // 2. Extraer SEO (Consistente con los nombres de campos de tu Storyblok)
 const seoData = {

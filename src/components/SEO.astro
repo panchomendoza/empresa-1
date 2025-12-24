@@ -4,16 +4,18 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
+  favicon?: string;
 }
 
 const { 
   title, 
   description = import.meta.env.PUBLIC_SEO_DESCRIPTION,
-  image 
+  image,
+  favicon
 } = Astro.props;
 
 const siteName = import.meta.env.PUBLIC_SITE_NAME;
-const favicon = import.meta.env.PUBLIC_FAVICON_URL || "/favicon.svg";
+const faviconURL = favicon || "/favicon.svg";
 
 // Lógica de imagen: Si hay imagen de Storyblok se usa, si no, la de por defecto
 const finalImage = image || "/default-og-image.png";
@@ -50,4 +52,4 @@ const fullTitle = title ? `${title} | ${siteName}` : siteName;
 <meta name="twitter:image" content={imageURL} />
 
 <!-- Favicon -->
-<link rel="icon" type="image/svg+xml" href={favicon} />
+<link rel="icon" type="image/svg+xml" href={faviconURL} />

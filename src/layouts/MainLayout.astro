@@ -6,33 +6,57 @@ import Footer from '../components/Footer.astro';
 
 const { title, description, image, config } = Astro.props;
 
-// Colores
-const primary = config?.content?.color_primary || '#000000';
-const secondary = config?.content?.color_secondary || '#cccccc';
+// 1. Extracción de datos de Branding desde el contenido de Storyblok
+const branding = config?.content;
+
+const primary = branding?.color_primary || '#000000';
+const secondary = branding?.color_secondary || '#cccccc';
+const backgroundColor = branding?.background_color || '#f8fafc'; // Fallback a slate-50
+const favicon = branding?.favicon?.filename || 'favicon.svg';
+
+// Manejo de Border Radius (Asumiendo que guardas un número o un string como '8px')
+const borderRadius = branding?.border_radius 
+    ? (typeof branding.border_radius === 'number' ? `${branding.border_radius}px` : branding.border_radius)
+    : '4px';
 
 // Assets y navegación
-const logo = config?.content?.logo?.filename || '';
-const menuItems = config?.content?.menu_items || [];
-const socialLinks = config?.content?.social_links || [];
-const copyrightText = config?.content?.copyright_text || "";
+const logo = branding?.logo?.filename || '';
+const menuItems = branding?.menu_items || [];
+const socialLinks = branding?.social_links || [];
+const copyrightText = branding?.copyright_text || "";
 ---
 
 <html lang="es">
-    <head>
+    <head>        
         <SEO 
             title={title} 
             description={description} 
-            image={image} 
+            image={image}
+            favicon={favicon}
         />
 
-        <style define:vars={{ primary, secondary }}>
+        <style is:global define:vars={{ primary, secondary, backgroundColor, borderRadius }}>
             :root {
                 --brand-primary: var(--primary);
                 --brand-secondary: var(--secondary);
+                --brand-bg: var(--backgroundColor);
+                --brand-radius: var(--borderRadius);
+            }
+
+            /* Aplicación automática de los estilos globales */
+            body {
+                background-color: var(--brand-bg);
+            }
+
+            /* Opcional: Puedes forzar que todos los botones e inputs 
+               del sitio respeten el radio de borde definido por el usuario 
+            */
+            button, input, select, textarea, .card, .rounded-brand {
+                border-radius: var(--brand-radius) !important;
             }
         </style>
     </head>
-    <body class="min-h-screen bg-slate-50 flex flex-col">
+    <body class="min-h-screen flex flex-col">
         <Header data={{ logo, menuItems }} />
         
         <main class="flex-grow">
